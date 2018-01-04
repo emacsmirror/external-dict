@@ -1,0 +1,28 @@
+* About
+
+Query the word smartly with goldendict as you think.
+
+
+* Features
+
+- query the word at the point or the region select word.
+
+
+* Installation
+
+** Goldendict
+
+Make sure you have "*goldendict*" installed.
+
+** use-package
+
+#+begin_src emacs-lisp
+(use-package goldendict
+  :ensure t
+  :bind ("<keybinding>" . goldendict-dwim))
+#+end_src
+
+
+* Usage
+
+Bind command ~goldendict-dwim~ to any keybinding you want.
