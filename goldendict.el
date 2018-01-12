@@ -39,7 +39,7 @@
     (save-excursion
       ;; pass the selection to shell command goldendict.
       ;; use Goldendict API: "Scan Popup"
-      (shell-command (concat goldendict-cmd " " (shell-quote-argument word))))))
+      (call-process "goldendict" nil nil nil word))))
 
 
 
