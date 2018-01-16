@@ -12,7 +12,11 @@
 ;;; Commentary:
 ;;
 ;; query word smartly with goldendict.el
-
+;;
+;; Usage:
+;;
+;; (global-set-key (kbd "C-x d") 'goldendict-dwim)
+;; If invoke with [C-u] prefix, then it will raise the main window.
 
 ;;; Code:
 
@@ -27,19 +31,23 @@
   :type 'string
   :group 'goldendict)
 
-(defun goldendict-dwim ()
-  "Query current symbol/word at point or region selected with Goldendict."
-  (interactive)
-  (let ((word (downcase
-               (substring-no-properties
-                (if (region-active-p)
-                    (buffer-substring-no-properties (mark) (point))
-                  ;; way: get word with `thing-at-point'
-                  (thing-at-point 'word))))))
-    (save-excursion
-      ;; pass the selection to shell command goldendict.
-      ;; use Goldendict API: "Scan Popup"
-      (call-process "goldendict" nil nil nil word))))
+(defun goldendict-dwim (&optional raise-main-window)
+  "Query current symbol/word at point or region selected with Goldendict.
+If you invoke command with `RAISE-MAIN-WINDOW' prefix \\<universal-argument>, it will raise Goldendict main window."
+  (interactive "P")
+  (if current-prefix-arg
+      (save-excursion
+        (call-process goldendict-cmd nil nil nil))
+    (let ((word (downcase
+                 (substring-no-properties
+                  (if (region-active-p)
+                      (buffer-substring-no-properties (mark) (point))
+                    ;; way: get word with `thing-at-point'
+                    (thing-at-point 'word))))))
+      (save-excursion
+        ;; pass the selection to shell command goldendict.
+        ;; use Goldendict API: "Scan Popup"
+        (call-process goldendict-cmd nil nil nil word)))))
 
 
 
