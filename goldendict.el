@@ -31,6 +31,7 @@
   :type 'string
   :group 'goldendict)
 
+;;;###autoload
 (defun goldendict-dwim (&optional raise-main-window)
   "Query current symbol/word at point or region selected with Goldendict.
 If you invoke command with `RAISE-MAIN-WINDOW' prefix \\<universal-argument>, it will raise Goldendict main window."
