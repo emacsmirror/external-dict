@@ -48,7 +48,8 @@ If you invoke command with `RAISE-MAIN-WINDOW' prefix \\<universal-argument>, it
       (save-excursion
         ;; pass the selection to shell command goldendict.
         ;; use Goldendict API: "Scan Popup"
-        (call-process goldendict-cmd nil nil nil word)))))
+        (call-process goldendict-cmd nil nil nil word)))
+    (deactivate-mark)))
 
 
 
