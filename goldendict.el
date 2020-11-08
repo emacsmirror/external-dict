@@ -31,11 +31,20 @@
   :type 'string
   :group 'goldendict)
 
+(defun goldendict-ensure ()
+  "Ensure goldendict is running."
+  (unless (string-match "goldendict" (shell-command-to-string "ps -C 'goldendict' | sed -n '2p'"))
+    (start-process-shell-command
+     "*goldendict*"
+     " *goldendict*"
+     "goldendict")))
+
 ;;;###autoload
 (defun goldendict-dwim (&optional raise-main-window)
   "Query current symbol/word at point or region selected with Goldendict.
 If you invoke command with `RAISE-MAIN-WINDOW' prefix \\<universal-argument>, it will raise Goldendict main window."
   (interactive "P")
+  (goldendict-ensure)
   (if current-prefix-arg
       (save-excursion
         (call-process goldendict-cmd nil nil nil))
