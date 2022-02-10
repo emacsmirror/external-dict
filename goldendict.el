@@ -4,7 +4,7 @@
 ;; Package-Requires: ((emacs "24.4") (cl-lib "0.5"))
 ;; Package-Version: 0.1
 ;; Keywords: dict goldendict
-;; homepage: https://github.com/stardiviner/goldendict.el
+;; homepage: https://repo.or.cz/goldendict.el.git
 
 ;; You should have received a copy of the GNU General Public License
 ;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
