@@ -1,9 +1,9 @@
-;;; external-dict.el --- Query word with external dictionary like goldendict, Bob.app etc.
+;;; external-dict.el --- Query external dictionary like goldendict, Bob.app etc
 
 ;; Authors: stardiviner <numbchild@gmail.com>
-;; Package-Requires: ((emacs "24.4") (cl-lib "0.5"))
+;; Package-Requires: ((emacs "25.1"))
 ;; Package-Version: 0.1
-;; Keywords: dict
+;; Keywords: wp processes
 ;; homepage: https://repo.or.cz/external-dict.el.git
 
 ;; You should have received a copy of the GNU General Public License
