@@ -19,6 +19,7 @@
 
 ;;; Code:
 
+(declare-function ns-do-applescript "nsfns.m" t)
 
 (defgroup external-dict nil
   "Use external dictionary in Emacs."
