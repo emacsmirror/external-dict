@@ -42,6 +42,38 @@
   :type 'string
   :group 'external-dict)
 
+(defcustom external-dict-read-cmd
+  (cl-case system-type
+    ('gnu/linux
+     (cl-case (plist-get external-dict-cmd :dict-program)
+       ("goldendict" nil)
+       (t
+        (cond
+         ((executable-find "festival") "festival")
+         ((executable-find "espeak") "espeak"))))
+     )
+    ('darwin
+     (pcase (plist-get external-dict-cmd :dict-program)
+       ("Bob" "say")
+       ("goldendict" "say"))))
+  "Specify external tool command to read the query word.
+If the value is nil, it will let dictionary handle it without invoke the command.
+If the value is a command string, it will invoke the command to read the word."
+  :type 'string
+  :safe #'stringp)
+
+;;;###autoload
+(defun external-dict-read-word (word)
+  "Auto read the query word."
+  (interactive)
+  (pcase external-dict-read-cmd
+    ("say"
+     (shell-command (concat "say " (shell-quote-argument word))))
+    ("festival"
+     (shell-command (concat "festival --tts " (shell-quote-argument word))))
+    ("espeak"
+     (shell-command (concat "espeak " (shell-quote-argument word))))))
+
 (defun external-dict-goldendict--ensure ()
   "Ensure goldendict program is running."
   (unless (string-match "goldendict" (shell-command-to-string "ps -C 'goldendict' | sed -n '2p'"))
@@ -72,7 +104,8 @@ it will raise external dictionary main window."
         (save-excursion
           ;; pass the selection to shell command goldendict.
           ;; use Goldendict API: "Scan Popup"
-          (call-process goldendict-cmd nil nil nil word)))
+          (call-process goldendict-cmd nil nil nil word))
+        (external-dict-read-word word))
       (deactivate-mark))))
 
 ;;;###autoload
@@ -87,7 +120,8 @@ it will raise external dictionary main window."
       "tell application \"Bob\"
  launch
  translate \"%s\"
- end tell" text))))
+ end tell" text))
+    (shell-command (concat "say " (shell-quote-argument text)))))
 
 ;;;###autoload
 (defun external-dict-dwim ()
