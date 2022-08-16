@@ -66,6 +66,7 @@ If the value is a command string, it will invoke the command to read the word."
 (defun external-dict-read-word (word)
   "Auto pronounce the query word or read the text."
   (interactive)
+  (sit-for 1)
   (pcase external-dict-read-cmd
     ("say"
      (shell-command (concat "say " (shell-quote-argument word))))
@@ -121,7 +122,7 @@ it will raise external dictionary main window."
  launch
  translate \"%s\"
  end tell" text))
-    (shell-command (concat "say " (shell-quote-argument text)))))
+    (external-dict-read-word text)))
 
 ;;;###autoload
 (defun external-dict-dwim ()
