@@ -64,7 +64,7 @@ If the value is a command string, it will invoke the command to read the word."
 
 ;;;###autoload
 (defun external-dict-read-word (word)
-  "Auto read the query word."
+  "Auto pronounce the query word or read the text."
   (interactive)
   (pcase external-dict-read-cmd
     ("say"
