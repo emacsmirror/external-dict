@@ -28,11 +28,11 @@
 
 (defcustom external-dict-cmd
   (cl-case system-type
-    ('gnu/linux
+    (gnu/linux
      (cond
       ((executable-find "goldendict")
        '(:dict-program "goldendict" :command-p t))))
-    ('darwin
+    (darwin
      (cond
       ((file-exists-p "/Applications/Bob.app")
        '(:dict-program "Bob" :command-p nil))
@@ -44,15 +44,14 @@
 
 (defcustom external-dict-read-cmd
   (cl-case system-type
-    ('gnu/linux
+    (gnu/linux
      (cl-case (plist-get external-dict-cmd :dict-program)
        ("goldendict" nil)
        (t
         (cond
          ((executable-find "festival") "festival")
-         ((executable-find "espeak") "espeak"))))
-     )
-    ('darwin
+         ((executable-find "espeak") "espeak")))))
+    (darwin
      (pcase (plist-get external-dict-cmd :dict-program)
        ("Bob" "say")
        ("goldendict" "say"))))
@@ -91,8 +90,8 @@ it will raise external dictionary main window."
   (interactive "P")
   (external-dict-goldendict--ensure)
   (let ((goldendict-cmd (cl-case system-type
-                          ('gnu/linux (executable-find "goldendict"))
-                          ('darwin (or (executable-find "GoldenDict") (executable-find "goldendict")))
+                          (gnu/linux (executable-find "goldendict"))
+                          (darwin (or (executable-find "GoldenDict") (executable-find "goldendict")))
                           (t (plist-get external-dict-cmd :dict-program)))))
     (if current-prefix-arg
         (save-excursion
