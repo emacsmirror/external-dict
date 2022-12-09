@@ -124,19 +124,22 @@ it will raise external dictionary main window."
 
 ;;; [ Bob.app ]
 ;;;###autoload
-(defun external-dict-Bob ()
-  "Query current symbol/word at point or region selected with Bob.app under macOS."
-  (interactive)
-  (let ((text (if (region-active-p)
-                  (buffer-substring-no-properties (mark) (point))
-                (thing-at-point 'symbol))))
-    (ns-do-applescript
-     (format
-      "tell application \"Bob\"
+(defun external-dict-Bob (text)
+  "Query TEXT like current symbol/word at point or region selected or input text with Bob.app under macOS."
+  (interactive
+   (list (cond
+          ((region-active-p)
+           (buffer-substring-no-properties (mark) (point)))
+          ((string-empty-p (thing-at-point 'word))
+           (thing-at-point 'word))
+          (t (read-string "[external-dict.el] Query word in macOS Bob.app: ")))))
+  (ns-do-applescript
+   (format
+    "tell application \"Bob\"
  launch
  translate \"%s\"
  end tell" text))
-    (external-dict-read-word text)))
+  (external-dict-read-word text))
 
 ;;;###autoload
 (defun external-dict-dwim ()
