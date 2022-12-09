@@ -74,6 +74,20 @@ If the value is a command string, it will invoke the command to read the word."
     ("espeak"
      (shell-command (concat "espeak " (shell-quote-argument word))))))
 
+;;; [ macOS Dictionary.app ]
+;;;###autoload
+(defun external-dict-dictionary-app (text)
+  "Query TEXT like current symbol/world at point or region selected or input with macOS Dictionary.app."
+  (interactive
+   (list (cond
+          ((region-active-p)
+           (buffer-substring-no-properties (mark) (point)))
+          ((not (string-empty-p (substring-no-properties (thing-at-point 'word))))
+           (thing-at-point 'word))
+          (t (read-string "[external-dict.el] Query word in macOS Dictionary.app: ")))))
+  (shell-command (format "open dict://\"%s\"" text)))
+
+;;; [ Goldendict ]
 (defun external-dict-goldendict--ensure ()
   "Ensure goldendict program is running."
   (unless (string-match "goldendict" (shell-command-to-string "ps -C 'goldendict' | sed -n '2p'"))
@@ -108,6 +122,7 @@ it will raise external dictionary main window."
         (external-dict-read-word word))
       (deactivate-mark))))
 
+;;; [ Bob.app ]
 ;;;###autoload
 (defun external-dict-Bob ()
   "Query current symbol/word at point or region selected with Bob.app under macOS."
