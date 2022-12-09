@@ -112,9 +112,12 @@ it will raise external dictionary main window."
           (call-process goldendict-cmd nil nil nil))
       (let ((word (downcase
                    (substring-no-properties
-                    (if (region-active-p)
-                        (buffer-substring-no-properties (mark) (point))
-                      (thing-at-point 'word))))))
+                    (cond
+                     ((region-active-p)
+                      (buffer-substring-no-properties (mark) (point)))
+                     ((not (string-empty-p (substring-no-properties (thing-at-point 'word))))
+                      (thing-at-point 'word))
+                     (t (read-string "[external-dict.el] Query word in Goldendict: ")))))))
         (save-excursion
           ;; pass the selection to shell command goldendict.
           ;; use Goldendict API: "Scan Popup"
