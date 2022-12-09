@@ -35,9 +35,10 @@
     (darwin
      (cond
       ((file-exists-p "/Applications/Bob.app")
-       '(:dict-program "Bob" :command-p nil))
-      ((executable-find "goldendict")
-       '(:dict-program "goldendict" :command-p t)))))
+       '(:dict-program "Bob.app" :command-p nil))
+      ((file-exists-p "/Applications/GoldenDict.app")
+       '(:dict-program "GoldenDict.app" :command-p t))
+      (t '(:dict-program "Dictionary.app" :command-p t)))))
   "Specify external dictionary command."
   :type 'string
   :group 'external-dict)
@@ -53,8 +54,9 @@
          ((executable-find "espeak") "espeak")))))
     (darwin
      (pcase (plist-get external-dict-cmd :dict-program)
-       ("Bob" "say")
-       ("goldendict" "say"))))
+       ("Bob.app" "say")
+       ("GoldenDict.app" "say")
+       ("Dictionary.app" "say"))))
   "Specify external tool command to read the query word.
 If the value is nil, it will let dictionary handle it without invoke the command.
 If the value is a command string, it will invoke the command to read the word."
@@ -76,7 +78,7 @@ If the value is a command string, it will invoke the command to read the word."
 
 ;;; [ macOS Dictionary.app ]
 ;;;###autoload
-(defun external-dict-dictionary-app (text)
+(defun external-dict-Dictionary.app (text)
   "Query TEXT like current symbol/world at point or region selected or input with macOS Dictionary.app."
   (interactive
    (list (cond
@@ -125,9 +127,12 @@ it will raise external dictionary main window."
         (external-dict-read-word word))
       (deactivate-mark))))
 
+;;; alias for `external-dict-cmd' property `:dict-program' name under macOS.
+(defalias 'external-dict-GoldenDict.app 'external-dict-goldendict)
+
 ;;; [ Bob.app ]
 ;;;###autoload
-(defun external-dict-Bob (text)
+(defun external-dict-Bob.app (text)
   "Query TEXT like current symbol/word at point or region selected or input text with Bob.app under macOS."
   (interactive
    (list (cond
