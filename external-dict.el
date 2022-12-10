@@ -101,7 +101,7 @@ If the value is a command string, it will invoke the command to read the word."
   (external-dict-read-word word))
 
 ;;; [ Goldendict ]
-(defun external-dict-goldendict--ensure ()
+(defun external-dict-goldendict--ensure-running ()
   "Ensure goldendict program is running."
   (unless (string-match "goldendict" (shell-command-to-string "ps -C 'goldendict' | sed -n '2p'"))
     (start-process-shell-command
@@ -115,7 +115,7 @@ If the value is a command string, it will invoke the command to read the word."
 If you invoke command with `RAISE-MAIN-WINDOW' prefix \\<universal-argument>,
 it will raise external dictionary main window."
   (interactive (list (external-dict--get-word)))
-  (external-dict-goldendict--ensure)
+  (external-dict-goldendict--ensure-running)
   (let ((goldendict-cmd (cl-case system-type
                           (gnu/linux (executable-find "goldendict"))
                           (darwin (or (executable-find "GoldenDict") (executable-find "goldendict")))
