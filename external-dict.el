@@ -85,7 +85,7 @@ If the value is a command string, it will invoke the command to read the word."
           ((region-active-p)
            (buffer-substring-no-properties (mark) (point)))
           ((not (string-blank-p (substring-no-properties (thing-at-point 'word))))
-           (thing-at-point 'word))
+           (substring-no-properties (thing-at-point 'word)))
           (t (read-string "[external-dict.el] Query word in macOS Dictionary.app: ")))))
   (shell-command (format "open dict://\"%s\"" text)))
 
@@ -118,7 +118,7 @@ it will raise external dictionary main window."
                      ((region-active-p)
                       (buffer-substring-no-properties (mark) (point)))
                      ((not (string-blank-p (substring-no-properties (thing-at-point 'word))))
-                      (thing-at-point 'word))
+                      (substring-no-properties (thing-at-point 'word)))
                      (t (read-string "[external-dict.el] Query word in Goldendict: ")))))))
         (save-excursion
           ;; pass the selection to shell command goldendict.
@@ -138,8 +138,8 @@ it will raise external dictionary main window."
    (list (cond
           ((region-active-p)
            (buffer-substring-no-properties (mark) (point)))
-          ((not (string-blank-p (thing-at-point 'word)))
-           (thing-at-point 'word))
+          ((not (string-blank-p (substring-no-properties (thing-at-point 'word))))
+           (substring-no-properties (thing-at-point 'word)))
           (t (read-string "[external-dict.el] Query word in macOS Bob.app: ")))))
   (ns-do-applescript
    (format
