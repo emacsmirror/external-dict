@@ -63,6 +63,16 @@ If the value is a command string, it will invoke the command to read the word."
   :type 'string
   :safe #'stringp)
 
+(defun external-dict--get-word ()
+  "Get query word from region selected, thing-at-point, or interactive input."
+  (cond
+   ((region-active-p)
+    (buffer-substring-no-properties (mark) (point)))
+   ((and (thing-at-point 'word)
+         (not (string-blank-p (substring-no-properties (thing-at-point 'word)))))
+    (substring-no-properties (thing-at-point 'word)))
+   (t (read-string "[external-dict.el] Query word in macOS Bob.app: "))))
+
 ;;;###autoload
 (defun external-dict-read-word (word)
   "Auto pronounce the query word or read the text."
@@ -78,7 +88,7 @@ If the value is a command string, it will invoke the command to read the word."
 
 ;;; [ macOS Dictionary.app ]
 ;;;###autoload
-(defun external-dict-Dictionary.app (text)
+(defun external-dict-Dictionary.app (word)
   "Query TEXT like current symbol/world at point or region selected or input with macOS Dictionary.app."
   (interactive
    (list (cond
@@ -87,7 +97,8 @@ If the value is a command string, it will invoke the command to read the word."
           ((not (string-blank-p (substring-no-properties (thing-at-point 'word))))
            (substring-no-properties (thing-at-point 'word)))
           (t (read-string "[external-dict.el] Query word in macOS Dictionary.app: ")))))
-  (shell-command (format "open dict://\"%s\"" text)))
+  (shell-command (format "open dict://\"%s\"" word))
+  (external-dict-read-word word))
 
 ;;; [ Goldendict ]
 (defun external-dict-goldendict--ensure ()
@@ -99,11 +110,11 @@ If the value is a command string, it will invoke the command to read the word."
      "goldendict")))
 
 ;;;###autoload
-(defun external-dict-goldendict (&optional raise-main-window)
+(defun external-dict-goldendict (word)
   "Query current symbol/word at point or region selected with goldendict.
 If you invoke command with `RAISE-MAIN-WINDOW' prefix \\<universal-argument>,
 it will raise external dictionary main window."
-  (interactive "P")
+  (interactive (list (external-dict--get-word)))
   (external-dict-goldendict--ensure)
   (let ((goldendict-cmd (cl-case system-type
                           (gnu/linux (executable-find "goldendict"))
@@ -112,19 +123,11 @@ it will raise external dictionary main window."
     (if current-prefix-arg
         (save-excursion
           (call-process goldendict-cmd nil nil nil))
-      (let ((word (downcase
-                   (substring-no-properties
-                    (cond
-                     ((region-active-p)
-                      (buffer-substring-no-properties (mark) (point)))
-                     ((not (string-blank-p (substring-no-properties (thing-at-point 'word))))
-                      (substring-no-properties (thing-at-point 'word)))
-                     (t (read-string "[external-dict.el] Query word in Goldendict: ")))))))
-        (save-excursion
-          ;; pass the selection to shell command goldendict.
-          ;; use Goldendict API: "Scan Popup"
-          (call-process goldendict-cmd nil nil nil word))
-        (external-dict-read-word word))
+      (save-excursion
+        ;; pass the selection to shell command goldendict.
+        ;; use Goldendict API: "Scan Popup"
+        (call-process goldendict-cmd nil nil nil word))
+      (external-dict-read-word word)
       (deactivate-mark))))
 
 ;;; alias for `external-dict-cmd' property `:dict-program' name under macOS.
@@ -134,13 +137,7 @@ it will raise external dictionary main window."
 ;;;###autoload
 (defun external-dict-Bob.app (text)
   "Query TEXT like current symbol/word at point or region selected or input text with Bob.app under macOS."
-  (interactive
-   (list (cond
-          ((region-active-p)
-           (buffer-substring-no-properties (mark) (point)))
-          ((not (string-blank-p (substring-no-properties (thing-at-point 'word))))
-           (substring-no-properties (thing-at-point 'word)))
-          (t (read-string "[external-dict.el] Query word in macOS Bob.app: ")))))
+  (interactive (list (external-dict--get-word)))
   (ns-do-applescript
    (format
     "tell application \"Bob\"
@@ -154,7 +151,7 @@ it will raise external dictionary main window."
   "Query current symbol/word at point or region selected with external dictionary."
   (interactive)
   (let ((dict-program (plist-get external-dict-cmd :dict-program)))
-    (funcall-interactively (intern (format "external-dict-%s" dict-program)))))
+    (call-interactively (intern (format "external-dict-%s" dict-program)))))
 
 
 
