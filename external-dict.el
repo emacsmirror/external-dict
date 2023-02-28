@@ -63,15 +63,18 @@ If the value is a command string, it will invoke the command to read the word."
   :type 'string
   :safe #'stringp)
 
-(defun external-dict--get-word ()
-  "Get query word from region selected, thing-at-point, or interactive input."
+(defun external-dict--get-text ()
+  "Get word or text from region selected, thing-at-point, or interactive input."
   (cond
    ((region-active-p)
-    (buffer-substring-no-properties (mark) (point)))
+    (let ((text (buffer-substring-no-properties (mark) (point))))
+      `(:type :text :text ,text)))
    ((and (thing-at-point 'word)
          (not (string-blank-p (substring-no-properties (thing-at-point 'word)))))
-    (substring-no-properties (thing-at-point 'word)))
-   (t (read-string "[external-dict.el] Query word in macOS Bob.app: "))))
+    (let ((word (substring-no-properties (thing-at-point 'word))))
+      `(:type :word, :text ,word)))
+   (t (let ((word (read-string "[external-dict.el] Query word: ")))
+        `(:type :word :text ,word)))))
 
 ;;;###autoload
 (defun external-dict-read-word (word)
@@ -114,7 +117,7 @@ If the value is a command string, it will invoke the command to read the word."
   "Query current symbol/word at point or region selected with goldendict.
 If you invoke command with `RAISE-MAIN-WINDOW' prefix \\<universal-argument>,
 it will raise external dictionary main window."
-  (interactive (list (external-dict--get-word)))
+  (interactive (list (plist-get (external-dict--get-text) :text)))
   (external-dict-goldendict--ensure-running)
   (let ((goldendict-cmd (cl-case system-type
                           (gnu/linux (executable-find "goldendict"))
