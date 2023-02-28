@@ -138,16 +138,44 @@ it will raise external dictionary main window."
 
 ;;; [ Bob.app ]
 ;;;###autoload
-(defun external-dict-Bob.app (text)
-  "Query TEXT like current symbol/word at point or region selected or input text with Bob.app under macOS."
-  (interactive (list (external-dict--get-word)))
+(defun external-dict-Bob.app-translate (text)
+  "Bob.app translate TEXT."
+  (let ((path "translate")
+        (action "translateText")
+        (text text))
+    (ns-do-applescript
+     (format "use scripting additions
+use framework \"Foundation\"
+on toJson(recordValue)
+(((current application's NSString)'s alloc)'s initWithData:((current application's NSJSONSerialization)'s dataWithJSONObject:recordValue options:1 |error|:(missing value)) encoding:4) as string
+end toJson
+
+set theRecord to {|path|: \"%s\", body: {action: \"%s\", |text|: \"%s\", windowLocation: \"center\", inputBoxState: \"alwaysUnfold\"}}
+set theParameter to toJson(theRecord)
+tell application id \"com.hezongyidev.Bob\" to request theParameter
+"
+             path action text))))
+
+(defun external-dict-Bob.app-dictionary (word)
+  "macOS Bob.app query dictionary for WORD."
   (ns-do-applescript
    (format
     "tell application \"Bob\"
  launch
  translate \"%s\"
- end tell" text))
-  (external-dict-read-word text))
+ end tell" word))
+  (external-dict-read-word word))
+
+(defun external-dict-Bob.app (text)
+  "Translate text with Bob.app on macOS."
+  (interactive (list (plist-get (external-dict--get-text) :text)))
+  (let* ((return-plist (external-dict--get-text))
+         (type (plist-get return-plist :type)))
+    (cond
+     ((eq type :word)
+      (external-dict-Bob.app-dictionary text))
+     ((eq type :text)
+      (external-dict-Bob.app-translate text)))))
 
 ;;;###autoload
 (defun external-dict-dwim ()
