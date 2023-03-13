@@ -68,6 +68,7 @@ If the value is a command string, it will invoke the command to read the word."
   (cond
    ((region-active-p)
     (let ((text (buffer-substring-no-properties (mark) (point))))
+      (deactivate-mark)
       `(:type :text :text ,text)))
    ((and (thing-at-point 'word)
          (not (string-blank-p (substring-no-properties (thing-at-point 'word)))))
@@ -100,6 +101,7 @@ If the value is a command string, it will invoke the command to read the word."
           ((not (string-blank-p (substring-no-properties (thing-at-point 'word))))
            (substring-no-properties (thing-at-point 'word)))
           (t (read-string "[external-dict.el] Query word in macOS Dictionary.app: ")))))
+  (deactivate-mark)
   (shell-command (format "open dict://\"%s\"" word))
   (external-dict-read-word word))
 
