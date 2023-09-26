@@ -168,11 +168,12 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
  end tell" word))
   (external-dict-read-word word))
 
-(defun external-dict-Bob.app (text)
+(defun external-dict-Bob.app ()
   "Translate text with Bob.app on macOS."
-  (interactive (list (plist-get (external-dict--get-text) :text)))
+  (interactive)
   (let* ((return-plist (external-dict--get-text))
-         (type (plist-get return-plist :type)))
+         (type (plist-get return-plist :type))
+         (text (plist-get return-plist :text)))
     (cond
      ((eq type :word)
       (external-dict-Bob.app-dictionary text))
