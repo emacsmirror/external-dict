@@ -34,6 +34,8 @@
        '(:dict-program "goldendict" :command-p t))))
     (darwin
      (cond
+      ((file-exists-p "/Applications/Easydict.app")
+       '(:dict-program "Easydict.app" :command-p nil))
       ((file-exists-p "/Applications/Bob.app")
        '(:dict-program "Bob.app" :command-p nil))
       ((file-exists-p "/Applications/GoldenDict.app")
@@ -179,6 +181,22 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
       (external-dict-Bob.app-dictionary text))
      ((eq type :text)
       (external-dict-Bob.app-translate text)))))
+
+(defun external-dict-Easydict.app ()
+  "Translate text with Easydict.app on macOS.
+Easydict.app URL scheme easydict://query?text=good%20girl
+You can open the URL scheme with shell command:
+$ open \"easydict://query?text=good%20girl\"
+"
+  (interactive)
+  (let* ((return-plist (external-dict--get-text))
+         (type (plist-get return-plist :type))
+         (text (plist-get return-plist :text)))
+    (make-process
+     :name "external-dict-Easydict.app"
+     :command (list "open" (format "easydict://query?text=%s" (url-encode-url text))))
+    ;; (external-dict-read-word word)
+    ))
 
 ;;;###autoload
 (defun external-dict-dwim ()
