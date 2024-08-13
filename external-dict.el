@@ -60,13 +60,13 @@
        ("GoldenDict.app" "say")
        ("Dictionary.app" "say"))))
   "Specify external tool command to read the query word.
-If the value is nil, it will let dictionary handle it without invoke the command.
-If the value is a command string, it will invoke the command to read the word."
+If the value is nil, let dictionary handle it without invoke the command.
+If the value is a command string, invoke the command to read the word."
   :type 'string
   :safe #'stringp)
 
 (defun external-dict--get-text ()
-  "Get word or text from region selected, thing-at-point, or interactive input."
+  "Get word or text from region selected, `thing-at-point', or interactive input."
   (cond
    ((region-active-p)
     (let ((text (buffer-substring-no-properties (mark) (point))))
@@ -81,7 +81,7 @@ If the value is a command string, it will invoke the command to read the word."
 
 ;;;###autoload
 (defun external-dict-read-word (word)
-  "Auto pronounce the query word or read the text."
+  "Auto pronounce the query WORD."
   (interactive)
   (sit-for 1)
   (pcase external-dict-read-cmd
@@ -96,7 +96,7 @@ If the value is a command string, it will invoke the command to read the word."
 
 ;;;###autoload
 (defun external-dict-Dictionary.app (word)
-  "Query TEXT like current symbol/world at point or region selected or input with macOS Dictionary.app."
+  "Query WORD at point or region selected or input with macOS Dictionary.app."
   (interactive
    (list (cond
           ((region-active-p)
@@ -120,7 +120,7 @@ If the value is a command string, it will invoke the command to read the word."
 
 ;;;###autoload
 (defun external-dict-goldendict (word)
-  "Query current symbol/word at point or region selected with goldendict.
+  "Query WORD at point or region selected with goldendict.
 If you invoke command with `RAISE-MAIN-WINDOW' prefix \\<universal-argument>,
 it will raise external dictionary main window."
   (interactive (list (plist-get (external-dict--get-text) :text)))
@@ -146,7 +146,7 @@ it will raise external dictionary main window."
 
 ;;;###autoload
 (defun external-dict-Bob.app-translate (text)
-  "Bob.app translate TEXT."
+  "Translate TEXT in Bob.app."
   (let ((path "translate")
         (action "translateText")
         (text text))
@@ -164,7 +164,7 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
              path action text))))
 
 (defun external-dict-Bob.app-dictionary (word)
-  "macOS Bob.app query dictionary for WORD."
+  "Query WORD in macOS Bob.app."
   (ns-do-applescript
    (format
     "tell application \"Bob\"
@@ -192,8 +192,7 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
   "Translate text with Easydict.app on macOS.
 Easydict.app URL scheme easydict://query?text=good%20girl
 You can open the URL scheme with shell command:
-$ open \"easydict://query?text=good%20girl\"
-"
+$ open \"easydict://query?text=good%20girl\""
   (interactive)
   (let* ((return-plist (external-dict--get-text))
          (type (plist-get return-plist :type))
@@ -206,7 +205,7 @@ $ open \"easydict://query?text=good%20girl\"
 
 ;;;###autoload
 (defun external-dict-dwim ()
-  "Query current symbol/word at point or region selected with external dictionary."
+  "Query current word at point or region selected with external dictionary."
   (interactive)
   (let ((dict-program (plist-get external-dict-cmd :dict-program)))
     (call-interactively (intern (format "external-dict-%s" dict-program)))))
