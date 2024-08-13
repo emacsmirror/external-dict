@@ -20,6 +20,9 @@
 ;;; Code:
 
 (declare-function ns-do-applescript "nsfns.m" t)
+(require 'url) ; for `url-retrieve-synchronously'
+(require 'url-http) ; for `url-http-end-of-headers'
+(require 'json)
 
 (defgroup external-dict nil
   "Use external dictionary in Emacs."
@@ -187,6 +190,65 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
 
 ;;; [ Easydict.app ]
 
+(defun external-dict-Easydict.app--http-api (text &optional target-language service-type &rest args)
+  "Translate TEXT in Easydict local HTTP server translate API.
+
+- TARGET-LANGUAGE: specify translated text target language.
+- SERVICE-TYPE: specify service type available in Easydict.
+- ARGS: extra arguments like appleDictionaryNames vector in HTTP API."
+  (if (ignore-errors (open-network-stream "ping-localhost" "*ping localhost*" "localhost" 8080))
+      (let* ((url-request-method "POST")
+             (url-request-extra-headers '(("Content-Type" . "application/json")))
+             ;; POST JSON data `url-request-data'
+             (service-type (or service-type
+                               (completing-read "[Easydict] serviceType: " '("AppleDictionary" "Apple" "CustomOpenAI"))))
+             (target-language (or target-language
+                                  (completing-read "[Easydict] targetLanguage: " '("zh-Hans" "en"))))
+             (apple-dictionary-names (when (string-equal service-type "AppleDictionary")
+                                       (or args ; FIXME: how to get appleDictionaryNames from `args'
+                                           (seq-into (completing-read-multiple "[Easydict] multiple appleDictionaryNames (separated by ,) : "
+                                                                               ;; TODO: auto read a list of dictionaries in ~/Library/Dictionaries/
+                                                                               '("简明英汉字典" "牛津高阶英汉双解词典" "现代汉语规范词典" "汉语成语词典" "现代汉语同义词典" "大辞海"
+                                                                                 "Oxford Dictionary of English" "New Oxford American Dictionary" "Oxford Thesaurus of English"
+                                                                                 "Oxford American Writer’s Thesaurus"))
+                                                     'vector))))
+             (url-request-data (encode-coding-string (json-encode
+                                                      `(,(cons 'text text)
+                                                        ,(cons 'targetLanguage target-language)
+                                                        ,(cons 'serviceType service-type)
+                                                        ,@(when apple-dictionary-names
+                                                            (cons 'appleDictionaryNames apple-dictionary-names))))
+                                                     'utf-8)))
+        (with-current-buffer (url-retrieve-synchronously
+                              (let ((host "localhost")
+                                    (port 8080)
+                                    (api (if (member service-type '("CustomOpenAI" "Ollama"))
+                                             "streamTranslate"
+                                           "translate")))
+                                (format "http://%s:%s/%s" host port api)))
+          (let* ((result-alist (json-read-from-string
+                                (buffer-substring-no-properties (1+ url-http-end-of-headers) (point-max))))
+                 (translated-text (decode-coding-string (alist-get 'translatedText result-alist) 'utf-8)))
+            (message translated-text))))
+    (user-error "[external-dict] Easydict local HTTP server is not available. Please enable it in settings")))
+
+(defun external-dict-Easydict.app--http-api-translate-service-apple-dictionary (text)
+  "Translate TEXT in Easydict in translate API with service Apple Dictionary."
+  (external-dict-Easydict.app--http-api text nil "AppleDictionary"))
+
+(defun external-dict-Easydict.app--http-api-translate-service-apple (text)
+  "Translate TEXT in Easydict in translate API with service Apple."
+  (external-dict-Easydict.app--http-api text nil "Apple"))
+
+(defun external-dict-Easydict.app--http-api-translate-service-custom-openai (text)
+  "Translate TEXT in Easydict in translate API with service CustomOpenAI."
+  (external-dict-Easydict.app--http-api text nil "CustomOpenAI"))
+
+;;; TEST:
+;; (external-dict-Easydict.app--http-api "good ending")
+;; (external-dict-Easydict.app--http-api "世界")
+;; (external-dict-Easydict.app--http-api-translate-service-apple-dictionary "world")
+
 ;;;###autoload
 (defun external-dict-Easydict.app ()
   "Translate text with Easydict.app on macOS.
@@ -197,11 +259,18 @@ $ open \"easydict://query?text=good%20girl\""
   (let* ((return-plist (external-dict--get-text))
          (type (plist-get return-plist :type))
          (text (plist-get return-plist :text)))
-    (make-process
-     :name "external-dict Easydict.app"
-     :command (list "open" (format "easydict://query?text=%s" (url-encode-url text))))
-    ;; (external-dict-read-word word)
-    ))
+    (cond
+     ((eq type :word)
+      (external-dict-Easydict.app--http-api-translate-service-apple-dictionary text)
+      (external-dict-read-word text))
+     ((eq type :text)
+      ;; HTTP API
+      (if (ignore-errors (open-network-stream "ping-localhost" "*ping localhost*" "localhost" 8080))
+          (external-dict-Easydict.app--http-api text)
+        ;; URL Scheme
+        (make-process
+         :name "external-dict Easydict.app"
+         :command (list "open" (format "easydict://query?text=%s" (url-encode-url text)))))))))
 
 ;;;###autoload
 (defun external-dict-dwim ()
