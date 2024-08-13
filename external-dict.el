@@ -199,7 +199,7 @@ $ open \"easydict://query?text=good%20girl\"
          (type (plist-get return-plist :type))
          (text (plist-get return-plist :text)))
     (make-process
-     :name "external-dict-Easydict.app"
+     :name "external-dict Easydict.app"
      :command (list "open" (format "easydict://query?text=%s" (url-encode-url text))))
     ;; (external-dict-read-word word)
     ))
