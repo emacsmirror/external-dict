@@ -93,6 +93,7 @@ If the value is a command string, it will invoke the command to read the word."
      (shell-command (concat "espeak " (shell-quote-argument word))))))
 
 ;;; [ macOS Dictionary.app ]
+
 ;;;###autoload
 (defun external-dict-Dictionary.app (word)
   "Query TEXT like current symbol/world at point or region selected or input with macOS Dictionary.app."
@@ -108,6 +109,7 @@ If the value is a command string, it will invoke the command to read the word."
   (external-dict-read-word word))
 
 ;;; [ Goldendict ]
+
 (defun external-dict-goldendict--ensure-running ()
   "Ensure goldendict program is running."
   (unless (string-match "goldendict" (shell-command-to-string "ps -C 'goldendict' | sed -n '2p'"))
@@ -141,6 +143,7 @@ it will raise external dictionary main window."
 (defalias 'external-dict-GoldenDict.app 'external-dict-goldendict)
 
 ;;; [ Bob.app ]
+
 ;;;###autoload
 (defun external-dict-Bob.app-translate (text)
   "Bob.app translate TEXT."
@@ -182,6 +185,9 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
      ((eq type :text)
       (external-dict-Bob.app-translate text)))))
 
+;;; [ Easydict.app ]
+
+;;;###autoload
 (defun external-dict-Easydict.app ()
   "Translate text with Easydict.app on macOS.
 Easydict.app URL scheme easydict://query?text=good%20girl
