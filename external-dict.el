@@ -1,4 +1,4 @@
-;;; external-dict.el --- Query external dictionary like goldendict, Bob.app etc
+;;; external-dict.el --- Query external dictionary like goldendict, Bob.app etc  -*- lexical-binding: t; -*-
 
 ;; Authors: stardiviner <numbchild@gmail.com>
 ;; Package-Requires: ((emacs "25.1"))
