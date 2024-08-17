@@ -216,7 +216,7 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
                                                         ,(cons 'targetLanguage target-language)
                                                         ,(cons 'serviceType service-type)
                                                         ,@(when apple-dictionary-names
-                                                            (cons 'appleDictionaryNames apple-dictionary-names))))
+                                                            (list (cons 'appleDictionaryNames apple-dictionary-names)))))
                                                      'utf-8)))
         (with-current-buffer (url-retrieve-synchronously
                               (let ((host "localhost")
