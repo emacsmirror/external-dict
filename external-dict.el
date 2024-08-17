@@ -206,12 +206,11 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
                                   (completing-read "[Easydict] targetLanguage: " '("zh-Hans" "en"))))
              (apple-dictionary-names (when (string-equal service-type "AppleDictionary")
                                        (or args ; FIXME: how to get appleDictionaryNames from `args'
-                                           (seq-into (completing-read-multiple "[Easydict] multiple appleDictionaryNames (separated by ,) : "
-                                                                               ;; TODO: auto read a list of dictionaries in ~/Library/Dictionaries/
-                                                                               '("简明英汉字典" "牛津高阶英汉双解词典" "现代汉语规范词典" "汉语成语词典" "现代汉语同义词典" "大辞海"
-                                                                                 "Oxford Dictionary of English" "New Oxford American Dictionary" "Oxford Thesaurus of English"
-                                                                                 "Oxford American Writer’s Thesaurus"))
-                                                     'vector))))
+                                           (completing-read-multiple "[Easydict] multiple appleDictionaryNames (separated by ,) : "
+                                                                     ;; TODO: auto read a list of dictionaries in ~/Library/Dictionaries/
+                                                                     '("简明英汉字典" "牛津高阶英汉双解词典" "现代汉语规范词典" "汉语成语词典" "现代汉语同义词典" "大辞海"
+                                                                       "Oxford Dictionary of English" "New Oxford American Dictionary" "Oxford Thesaurus of English"
+                                                                       "Oxford American Writer’s Thesaurus")))))
              (url-request-data (encode-coding-string (json-encode
                                                       `(,(cons 'text text)
                                                         ,(cons 'targetLanguage target-language)
