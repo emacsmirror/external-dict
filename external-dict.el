@@ -196,7 +196,7 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
 - TARGET-LANGUAGE: specify translated text target language.
 - SERVICE-TYPE: specify service type available in Easydict.
 - ARGS: extra arguments like appleDictionaryNames vector in HTTP API."
-  (if (ignore-errors (open-network-stream "ping-localhost" "*ping localhost*" "localhost" 8080))
+  (if-let ((ping-connection (ignore-errors (open-network-stream "ping-localhost" "*ping localhost*" "localhost" 8080))))
       (let* ((url-request-method "POST")
              (url-request-extra-headers '(("Content-Type" . "application/json")))
              ;; POST JSON data `url-request-data'
@@ -228,6 +228,7 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
           (let* ((result-alist (json-read-from-string
                                 (buffer-substring-no-properties (1+ url-http-end-of-headers) (point-max))))
                  (translated-text (decode-coding-string (alist-get 'translatedText result-alist) 'utf-8)))
+            (delete-process ping-connection)
             (message translated-text))))
     (user-error "[external-dict] Easydict local HTTP server is not available. Please enable it in settings")))
 
@@ -271,8 +272,10 @@ $ open \"easydict://query?text=good%20girl\""
       (external-dict-read-word text))
      ((eq type :text)
       ;; HTTP API
-      (if (ignore-errors (open-network-stream "ping-localhost" "*ping localhost*" "localhost" 8080))
-          (external-dict-Easydict.app--http-api text)
+      (if-let ((ping-connection (ignore-errors (open-network-stream "ping-localhost" "*ping localhost*" "localhost" 8080))))
+          (progn
+            (external-dict-Easydict.app--http-api text)
+            (delete-process ping-connection))
         ;; URL scheme
         (external-dict-Easydict.app--macos-url-call-query text))))))
 
