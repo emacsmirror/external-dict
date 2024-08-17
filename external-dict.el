@@ -2,7 +2,7 @@
 
 ;; Authors: stardiviner <numbchild@gmail.com>
 ;; Package-Requires: ((emacs "25.1"))
-;; Package-Version: 0.1
+;; Package-Version: 1.0
 ;; Keywords: wp processes
 ;; homepage: https://repo.or.cz/external-dict.el.git
 ;; SPDX-License-Identifier: GPL-2.0-or-later
