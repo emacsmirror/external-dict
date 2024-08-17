@@ -248,6 +248,12 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
 ;; (external-dict-Easydict.app--http-api "世界")
 ;; (external-dict-Easydict.app--http-api-translate-service-apple-dictionary "world")
 
+(defun external-dict-Easydict.app--macos-url-call-query (word)
+  "Query WORD in Easydict.app on macOS system through URL scheme."
+  (make-process
+   :name "external-dict Easydict.app"
+   :command (list "open" (format "easydict://query?text=%s" (url-encode-url word)))))
+
 ;;;###autoload
 (defun external-dict-Easydict.app ()
   "Translate text with Easydict.app on macOS.
@@ -260,16 +266,15 @@ $ open \"easydict://query?text=good%20girl\""
          (text (plist-get return-plist :text)))
     (cond
      ((eq type :word)
-      (external-dict-Easydict.app--http-api-translate-service-apple-dictionary text)
+      (external-dict-Easydict.app--macos-url-call-query text)
+      ;; (external-dict-Easydict.app--http-api-translate-service-apple-dictionary text)
       (external-dict-read-word text))
      ((eq type :text)
       ;; HTTP API
       (if (ignore-errors (open-network-stream "ping-localhost" "*ping localhost*" "localhost" 8080))
           (external-dict-Easydict.app--http-api text)
-        ;; URL Scheme
-        (make-process
-         :name "external-dict Easydict.app"
-         :command (list "open" (format "easydict://query?text=%s" (url-encode-url text)))))))))
+        ;; URL scheme
+        (external-dict-Easydict.app--macos-url-call-query text))))))
 
 ;;;###autoload
 (defun external-dict-dwim ()
