@@ -190,7 +190,7 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
 
 ;;; [ Easydict.app ]
 
-(defun external-dict-Easydict.app--http-api (text &optional target-language service-type &rest args)
+(defun external-dict-Easydict.app--http-api (text &optional target-language service-type apple-dictionary-names &rest args)
   "Translate TEXT in Easydict local HTTP server translate API.
 
 - TARGET-LANGUAGE: specify translated text target language.
@@ -205,7 +205,7 @@ tell application id \"com.hezongyidev.Bob\" to request theParameter
              (target-language (or target-language
                                   (completing-read "[Easydict] targetLanguage: " '("zh-Hans" "en"))))
              (apple-dictionary-names (when (string-equal service-type "AppleDictionary")
-                                       (or args ; FIXME: how to get appleDictionaryNames from `args'
+                                       (or apple-dictionary-names
                                            (completing-read-multiple "[Easydict] multiple appleDictionaryNames (separated by ,) : "
                                                                      ;; TODO: auto read a list of dictionaries in ~/Library/Dictionaries/
                                                                      '("简明英汉字典" "牛津高阶英汉双解词典" "现代汉语规范词典" "汉语成语词典" "现代汉语同义词典" "大辞海"
