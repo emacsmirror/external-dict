@@ -37,10 +37,12 @@
        '(:dict-program "goldendict" :command-p t))))
     (darwin
      (cond
-      ((file-exists-p "/Applications/Easydict.app")
-       '(:dict-program "Easydict.app" :command-p nil))
-      ((file-exists-p "/Applications/Bob.app")
+      ((and (file-exists-p "/Applications/Bob.app")
+            (not (string-empty-p (shell-command-to-string "pidof Bob"))))
        '(:dict-program "Bob.app" :command-p nil))
+      ((and (file-exists-p "/Applications/Easydict.app")
+            (not (string-empty-p (shell-command-to-string "pidof Easydict"))))
+       '(:dict-program "Easydict.app" :command-p nil))
       ((file-exists-p "/Applications/GoldenDict.app")
        '(:dict-program "GoldenDict.app" :command-p t))
       (t '(:dict-program "Dictionary.app" :command-p t)))))
