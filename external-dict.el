@@ -68,7 +68,14 @@
 If the value is nil, let dictionary handle it without invoke the command.
 If the value is a command string, invoke the command to read the word."
   :type 'string
-  :safe #'stringp)
+  :safe #'stringp
+  :group 'external-dict)
+
+(defcustom external-dict-read-query t
+  "Whether read the query text."
+  :type 'boolean
+  :safe #'booleanp
+  :group 'external-dict)
 
 (defun external-dict--get-text ()
   "Get word or text from region selected, `thing-at-point', or interactive input."
@@ -88,14 +95,15 @@ If the value is a command string, invoke the command to read the word."
 (defun external-dict-read-word (word)
   "Auto pronounce the query WORD."
   (interactive)
-  (sit-for 1)
-  (pcase external-dict-read-cmd
-    ("say"
-     (shell-command (concat "say " (shell-quote-argument word))))
-    ("festival"
-     (shell-command (concat "festival --tts " (shell-quote-argument word))))
-    ("espeak"
-     (shell-command (concat "espeak " (shell-quote-argument word))))))
+  (when external-dict-read-query
+    (sit-for 1)
+    (pcase external-dict-read-cmd
+      ("say"
+       (shell-command (concat "say " (shell-quote-argument word))))
+      ("festival"
+       (shell-command (concat "festival --tts " (shell-quote-argument word))))
+      ("espeak"
+       (shell-command (concat "espeak " (shell-quote-argument word)))))))
 
 ;;; [ macOS Dictionary.app ]
 
