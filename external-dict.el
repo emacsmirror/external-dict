@@ -52,18 +52,17 @@
 
 (defcustom external-dict-read-cmd
   (cl-case system-type
-    (gnu/linux
-     (cl-case (plist-get external-dict-cmd :dict-program)
-       ("goldendict" nil)
-       (t
-        (cond
-         ((executable-find "festival") "festival")
-         ((executable-find "espeak") "espeak")))))
     (darwin
      (pcase (plist-get external-dict-cmd :dict-program)
        ("Bob.app" "say")
        ("GoldenDict.app" "say")
-       ("Dictionary.app" "say"))))
+       ("Dictionary.app" "say")))
+    (gnu/linux
+     (pcase (plist-get external-dict-cmd :dict-program)
+       ("goldendict" nil)
+       (_ (cond
+           ((executable-find "festival") "festival")
+           ((executable-find "espeak") "espeak"))))))
   "Specify external tool command to read the query word.
 If the value is nil, let dictionary handle it without invoke the command.
 If the value is a command string, invoke the command to read the word."
@@ -71,7 +70,17 @@ If the value is a command string, invoke the command to read the word."
   :safe #'stringp
   :group 'external-dict)
 
-(defcustom external-dict-read-query t
+(defcustom external-dict-read-query
+  (cl-case system-type
+    (darwin
+     (pcase (plist-get external-dict-cmd :dict-program)
+       ("Bob.app" nil)
+       ("GoldenDict.app" t)
+       ("Dictionary.app" t)))
+    (gnu/linux
+     (pcase (plist-get external-dict-cmd :dict-program)
+       ("goldendict" nil)
+       (_ t))))
   "Whether read the query text."
   :type 'boolean
   :safe #'booleanp
