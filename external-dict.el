@@ -169,11 +169,22 @@ it will raise external dictionary main window."
 ;;;###autoload
 (defun external-dict-Bob.app-translate (text)
   "Translate TEXT in Bob.app."
-  (let ((path "translate")
-        (action "translateText")
-        (text text))
-    (ns-do-applescript
-     (format "use scripting additions
+  (if (version<=
+       (ns-do-applescript
+        "tell application \"Bob\"
+version
+end tell")
+       "1.5.0")
+      (ns-do-applescript
+       (format "tell application id \"com.hezongyidev.Bob\"
+	launch
+	translate \"%s\"
+end tell" text))
+    (let ((path "translate")
+          (action "translateText")
+          (text text))
+      (ns-do-applescript
+       (format "use scripting additions
 use framework \"Foundation\"
 on toJson(recordValue)
 (((current application's NSString)'s alloc)'s initWithData:((current application's NSJSONSerialization)'s dataWithJSONObject:recordValue options:1 |error|:(missing value)) encoding:4) as string
@@ -183,7 +194,7 @@ set theRecord to {|path|: \"%s\", body: {action: \"%s\", |text|: \"%s\", windowL
 set theParameter to toJson(theRecord)
 tell application id \"com.hezongyidev.Bob\" to request theParameter
 "
-             path action text))))
+               path action text)))))
 
 (defun external-dict-Bob.app-dictionary (word)
   "Query WORD in macOS Bob.app."
